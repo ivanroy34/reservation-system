@@ -1,0 +1,120 @@
+{% extends 'reservation_app/base.html' %}
+
+{% block title %}Reservations | Table Reservation System{% endblock %}
+{% block header_title %}Reservation Management{% endblock %}
+
+{% block content %}
+<!-- Filters & Create Header -->
+<div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-6">
+    <form method="GET" class="flex flex-wrap gap-3 items-end">
+        <!-- Filter by Customer -->
+        <div class="flex flex-col">
+            <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Customer</label>
+            <select name="customer" class="block w-48 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+                <option value="">All Customers</option>
+                {% for c in customers %}
+                <option value="{{ c.id }}" {% if selected_customer == c.id|stringformat:"d" %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <!-- Filter by Date -->
+        <div class="flex flex-col">
+            <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Date</label>
+            <input type="date" name="date" value="{{ selected_date }}" class="block w-44 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+        </div>
+        <button type="submit" class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition-all dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300">
+            <i class="fa-solid fa-filter mr-1"></i> Filter
+        </button>
+        {% if selected_customer or selected_date %}
+        <a href="{% url 'reservation_app:reservation_list' %}" class="px-4 py-2 rounded-lg text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-semibold">Clear</a>
+        {% endif %}
+    </form>
+    
+    <a href="{% url 'reservation_app:reservation_create' %}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold transition-all shadow-md shadow-indigo-500/20 text-sm shrink-0">
+        <i class="fa-solid fa-plus-circle"></i>
+        <span>New Reservation</span>
+    </a>
+</div>
+
+<!-- Reservations Table -->
+<div class="bg-white rounded-2xl border border-slate-200/80 dark:bg-slate-900 dark:border-slate-800 shadow-sm overflow-hidden">
+    {% if reservations %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-100 dark:bg-slate-850 dark:border-slate-800">
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">ID</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Customer</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Table</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Date</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Time Slot</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Guests</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Status</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                {% for res in reservations %}
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition-colors">
+                    <td class="px-6 py-4 text-sm font-mono text-slate-400">#{{ res.id }}</td>
+                    <td class="px-6 py-4 text-sm font-semibold">
+                        <a href="{% url 'reservation_app:customer_detail' res.customer.id %}" class="hover:text-brand-500 transition-colors">{{ res.customer }}</a>
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 rounded-md">T-{{ res.table.table_number }}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">{{ res.reservation_date|date:"M d, Y" }}</td>
+                    <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 font-mono">{{ res.start_time|time:"H:i" }} - {{ res.end_time|time:"H:i" }}</td>
+                    <td class="px-6 py-4 text-sm font-medium">{{ res.guests }}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold
+                            {% if res.status.name == 'CONFIRMED' %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400
+                            {% elif res.status.name == 'PENDING' %}bg-amber-100 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400
+                            {% elif res.status.name == 'CANCELLED' %}bg-rose-100 text-rose-800 dark:bg-rose-950/30 dark:text-rose-400
+                            {% else %}bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300{% endif %}">
+                            {{ res.status.name }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right space-x-1">
+                        <a href="{% url 'reservation_app:reservation_detail' res.id %}" class="inline-flex p-2 text-slate-400 hover:text-brand-500 dark:hover:text-brand-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="View">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                        <a href="{% url 'reservation_app:reservation_update' res.id %}" class="inline-flex p-2 text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Edit">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        {% if res.status.name != 'CANCELLED' %}
+                        <a href="{% url 'reservation_app:reservation_cancel' res.id %}" class="inline-flex p-2 text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Cancel">
+                            <i class="fa-solid fa-ban"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-sm text-slate-500">
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        <div class="flex gap-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if selected_customer %}&customer={{ selected_customer }}{% endif %}{% if selected_date %}&date={{ selected_date }}{% endif %}" class="px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium transition-colors">Previous</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if selected_customer %}&customer={{ selected_customer }}{% endif %}{% if selected_date %}&date={{ selected_date }}{% endif %}" class="px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium transition-colors">Next</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+        <i class="fa-solid fa-calendar-xmark text-5xl mb-4 text-slate-300 dark:text-slate-700"></i>
+        <p class="font-medium">No reservations found</p>
+        <span class="text-xs mt-1">Try adjusting your filters or create a new reservation.</span>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

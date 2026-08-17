@@ -1,0 +1,108 @@
+{% extends 'reservation_app/base.html' %}
+
+{% block title %}{% if object %}Edit Reservation{% else %}New Reservation{% endif %} | Table Reservation System{% endblock %}
+{% block header_title %}{% if object %}Edit Reservation{% else %}New Reservation{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 dark:bg-slate-900 dark:border-slate-800 shadow-sm">
+    <div class="flex items-center gap-3 mb-6">
+        <div class="p-3 bg-brand-50 text-brand-500 rounded-xl dark:bg-brand-500/10 dark:text-brand-400">
+            <i class="fa-solid fa-calendar-plus text-xl"></i>
+        </div>
+        <div>
+            <h3 class="font-outfit font-bold text-lg">{% if object %}Modify Booking #{{ object.id }}{% else %}Create New Reservation{% endif %}</h3>
+            <p class="text-xs text-slate-400">Fill in the booking details below. Validation ensures no double-booking or capacity overflow.</p>
+        </div>
+    </div>
+    <form method="POST" class="space-y-6" id="reservation-form">
+        {% csrf_token %}
+
+        <!-- Form Errors (Global / Non-field) -->
+        {% if form.non_field_errors %}
+        <div class="p-4 bg-rose-50 border border-rose-100 text-rose-800 rounded-xl text-sm dark:bg-rose-950/20 dark:border-rose-900/50 dark:text-rose-400 flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation mt-0.5 shrink-0"></i>
+            <div>
+                {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Capacity Warning (JS-powered) -->
+        <div id="capacity-warning" class="p-4 bg-amber-50 border border-amber-100 text-amber-800 rounded-xl text-sm dark:bg-amber-950/20 dark:border-amber-900/50 dark:text-amber-400 items-start gap-3 hidden">
+            <i class="fa-solid fa-exclamation-circle mt-0.5 shrink-0"></i>
+            <span id="capacity-warning-text"></span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {% for field in form %}
+            <div class="{% if field.name == 'notes' %}sm:col-span-2{% endif %} flex flex-col">
+                <label for="{{ field.id_for_label }}" class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase tracking-wide">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<span class="text-xs text-rose-500 font-semibold mt-1">{{ field.errors.0 }}</span>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="border-t border-slate-100 dark:border-slate-800 pt-6 flex justify-end gap-3">
+            <a href="{% if object %}{% url 'reservation_app:reservation_detail' object.id %}{% else %}{% url 'reservation_app:reservation_list' %}{% endif %}" class="px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/80 dark:text-slate-300">
+                Cancel
+            </a>
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm transition-all shadow-md shadow-indigo-500/20">
+                {% if object %}Save Changes{% else %}Create Reservation{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Client-side Capacity Validation Script -->
+<script>
+(function() {
+    // Build a map of table ID -> capacity from the select options
+    const tableSelect = document.getElementById('id_table');
+    const guestsInput = document.getElementById('id_guests');
+    const warningDiv = document.getElementById('capacity-warning');
+    const warningText = document.getElementById('capacity-warning-text');
+
+    if (!tableSelect || !guestsInput) return;
+
+    // Parse table capacities from the option text pattern: "Table XX (Category - Cap: N)"
+    const capacityMap = {};
+    Array.from(tableSelect.options).forEach(opt => {
+        if (opt.value) {
+            const match = opt.text.match(/Cap:\s*(\d+)/);
+            if (match) {
+                capacityMap[opt.value] = parseInt(match[1], 10);
+            }
+        }
+    });
+
+    function checkCapacity() {
+        const tableId = tableSelect.value;
+        const guests = parseInt(guestsInput.value, 10);
+
+        if (tableId && !isNaN(guests) && capacityMap[tableId]) {
+            const cap = capacityMap[tableId];
+            if (guests > cap) {
+                warningText.textContent = `Warning: Selected table can only seat ${cap} guests, but you entered ${guests}. The server will reject this submission.`;
+                warningDiv.classList.remove('hidden');
+                warningDiv.classList.add('flex');
+            } else {
+                warningDiv.classList.add('hidden');
+                warningDiv.classList.remove('flex');
+            }
+        } else {
+            warningDiv.classList.add('hidden');
+            warningDiv.classList.remove('flex');
+        }
+    }
+
+    tableSelect.addEventListener('change', checkCapacity);
+    guestsInput.addEventListener('input', checkCapacity);
+
+    // Run on load in case form is pre-populated (edit mode)
+    checkCapacity();
+})();
+</script>
+{% endblock %}

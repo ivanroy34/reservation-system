@@ -1,0 +1,55 @@
+{% extends 'reservation_app/base.html' %}
+
+{% block title %}Categories | Table Reservation System{% endblock %}
+{% block header_title %}Table Categories{% endblock %}
+
+{% block content %}
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <p class="text-sm text-slate-500">Group tables into types like VIP Booths, Bar, or Outdoor Patio to manage reservation preferences.</p>
+    <a href="{% url 'reservation_app:table_category_create' %}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold transition-all shadow-md shadow-indigo-500/20 text-sm shrink-0">
+        <i class="fa-solid fa-plus-circle"></i>
+        <span>Add Category</span>
+    </a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% if categories %}
+        {% for cat in categories %}
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-6 dark:bg-slate-900 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div>
+                <div class="flex items-start justify-between mb-4">
+                    <span class="p-3 bg-indigo-50 text-brand-500 rounded-xl dark:bg-indigo-950/40 dark:text-brand-400">
+                        <i class="fa-solid fa-layer-group text-lg"></i>
+                    </span>
+                    <span class="px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-350 rounded-md">
+                        {{ cat.tables.count }} Tables
+                    </span>
+                </div>
+                <h3 class="font-outfit font-bold text-lg mb-2 dark:text-white">{{ cat.name }}</h3>
+                <p class="text-sm text-slate-500 line-clamp-3 mb-6">{{ cat.description }}</p>
+            </div>
+            
+            <div class="border-t border-slate-100 dark:border-slate-800/80 pt-4 flex justify-between items-center">
+                <a href="{% url 'reservation_app:table_category_detail' cat.id %}" class="text-sm font-semibold text-brand-500 hover:text-brand-600 dark:text-brand-400">
+                    Manage Tables
+                </a>
+                <div class="flex gap-2">
+                    <a href="{% url 'reservation_app:table_category_update' cat.id %}" class="p-1.5 text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Edit">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                    <a href="{% url 'reservation_app:table_category_delete' cat.id %}" class="p-1.5 text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Delete">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-span-full bg-white rounded-2xl border border-slate-200/80 py-16 dark:bg-slate-900 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center text-slate-400 text-center">
+            <i class="fa-solid fa-layer-group text-5xl mb-4 text-slate-300 dark:text-slate-700"></i>
+            <p class="font-medium">No table categories configured</p>
+            <a href="{% url 'reservation_app:table_category_create' %}" class="text-brand-500 hover:text-brand-600 text-sm font-semibold mt-2 dark:text-brand-400">Add a category now</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

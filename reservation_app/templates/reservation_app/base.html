@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Table Reservation System{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f5f7ff',
+                            100: '#ebf0ff',
+                            500: '#4f46e5',
+                            600: '#4338ca',
+                            700: '#3730a3',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.5);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-[#f8fafc] text-slate-800 font-sans min-h-screen flex flex-col transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
+    <!-- Outer Container -->
+    <div class="flex min-h-screen overflow-hidden">
+
+        <!-- Sidebar Navigation (Desktop) -->
+        <aside
+            class="hidden md:flex flex-col w-72 bg-white border-r border-slate-200/80 px-6 py-6 shrink-0 dark:bg-slate-900 dark:border-slate-800">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3 px-2 mb-8">
+                <div
+                    class="bg-brand-500 text-white p-2 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-utensils text-xl"></i>
+                </div>
+                <div>
+                    <h1
+                        class="font-outfit font-bold text-lg leading-tight bg-gradient-to-r from-brand-500 to-indigo-600 bg-clip-text text-transparent">
+                        Roy's Bistro</h1>
+                    <span class="text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                        Reservation System</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex-1 space-y-1.5 overflow-y-auto">
+                <a href="{% url 'reservation_app:dashboard' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group {% if request.resolver_match.url_name == 'dashboard' %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100{% endif %}">
+                    <i class="fa-solid fa-chart-pie text-lg transition-transform group-hover:scale-110"></i>
+                    <span>Dashboard</span>
+                </a>
+                <div
+                    class="pt-4 pb-2 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider dark:text-slate-500">
+                    Management</div>
+                <a href="{% url 'reservation_app:customer_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group {% if 'customer' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100{% endif %}">
+                    <i class="fa-solid fa-users text-lg transition-transform group-hover:scale-110"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="{% url 'reservation_app:table_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group {% if 'table' in request.resolver_match.url_name and 'category' not in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100{% endif %}">
+                    <i class="fa-solid fa-chair text-lg transition-transform group-hover:scale-110"></i>
+                    <span>Tables</span>
+                </a>
+                <a href="{% url 'reservation_app:table_category_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group {% if 'table_category' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100{% endif %}">
+                    <i class="fa-solid fa-layer-group text-lg transition-transform group-hover:scale-110"></i>
+                    <span>Categories</span>
+                </a>
+                <a href="{% url 'reservation_app:reservation_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group {% if 'reservation' in request.resolver_match.url_name and 'status' not in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100{% endif %}">
+                    <i class="fa-solid fa-calendar-days text-lg transition-transform group-hover:scale-110"></i>
+                    <span>Reservations</span>
+                </a>
+                <a href="{% url 'reservation_app:reservation_status_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group {% if 'reservation_status' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100{% endif %}">
+                    <i class="fa-solid fa-circle-check text-lg transition-transform group-hover:scale-110"></i>
+                    <span>Statuses</span>
+                </a>
+                <a href="{% url 'reservation_app:payment_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group {% if 'payment' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100{% endif %}">
+                    <i class="fa-solid fa-credit-card text-lg transition-transform group-hover:scale-110"></i>
+                    <span>Payments</span>
+                </a>
+                <a href="{% url 'reservation_app:audit_log_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group {% if 'audit_log' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100{% endif %}">
+                    <i class="fa-solid fa-clock-rotate-left text-lg transition-transform group-hover:scale-110"></i>
+                    <span>Audit Logs</span>
+                </a>
+            </nav>
+
+            <!-- Bottom controls -->
+            <div
+                class="mt-auto border-t border-slate-100 pt-6 dark:border-slate-800/80 flex items-center justify-between flex-shrink-0">
+                {% if user.is_authenticated %}
+                <div class="flex items-center gap-2.5 overflow-hidden">
+                    <div
+                        class="w-9 h-9 rounded-full bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0 uppercase border border-indigo-500/20">
+                        {{ user.username|first }}
+                    </div>
+                    <div class="truncate">
+                        <p class="text-xs font-bold leading-tight truncate text-slate-800 dark:text-slate-200">
+                            {{ user.get_full_name|default:user.username }}
+                        </p>
+                        <span class="text-[10px] text-emerald-500 font-semibold uppercase tracking-widest">
+                            {% if user.is_superuser %}Superuser{% elif user.is_staff %}Staff{% else %}Active{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <button id="theme-toggle-desktop" title="Toggle theme"
+                        class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl">
+                        <i class="fa-solid fa-moon text-base dark:hidden"></i>
+                        <i class="fa-solid fa-sun text-base hidden dark:block"></i>
+                    </button>
+                    <a href="{% url 'logout' %}" title="Sign Out"
+                        class="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors p-2 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl">
+                        <i class="fa-solid fa-right-from-bracket text-base"></i>
+                    </a>
+                </div>
+                {% else %}
+                <div class="flex items-center gap-2.5 overflow-hidden">
+                    <div
+                        class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center text-xs font-bold shrink-0 uppercase">
+                        G
+                    </div>
+                    <div class="truncate">
+                        <p class="text-xs font-bold leading-tight text-slate-600 dark:text-slate-300">Guest</p>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">Not Signed In</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <button id="theme-toggle-desktop" title="Toggle theme"
+                        class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl">
+                        <i class="fa-solid fa-moon text-base dark:hidden"></i>
+                        <i class="fa-solid fa-sun text-base hidden dark:block"></i>
+                    </button>
+                    <a href="{% url 'login' %}" title="Sign In"
+                        class="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-2 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded-xl">
+                        <i class="fa-solid fa-right-to-bracket text-base"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- Top Header Navbar (Responsive) -->
+            <header
+                class="flex items-center justify-between bg-white border-b border-slate-200/80 px-6 py-4 dark:bg-slate-900 dark:border-slate-800 h-16 shrink-0">
+                <!-- Mobile Open Menu Button & Page Title -->
+                <div class="flex items-center gap-4">
+                    <button id="mobile-menu-btn"
+                        class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+                        <i class="fa-solid fa-bars-staggered text-xl"></i>
+                    </button>
+                    <h2 class="font-outfit font-semibold text-lg md:text-xl text-slate-800 dark:text-white">
+                        {% block header_title %}Table Reservation System{% endblock %}
+                    </h2>
+                </div>
+
+                <!-- Right Header Tools -->
+                <div class="flex items-center gap-4">
+                    <span
+                        class="hidden md:inline-flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100 dark:bg-slate-800/40 dark:border-slate-800">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        iNextRoy Workspace
+                    </span>
+                    <!-- Theme Toggle Mobile -->
+                    <button id="theme-toggle-mobile"
+                        class="md:hidden text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+                        <i class="fa-solid fa-moon text-lg dark:hidden"></i>
+                        <i class="fa-solid fa-sun text-lg hidden dark:block"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Scrollable Page Wrapper -->
+            <main class="flex-1 overflow-y-auto p-6 md:p-8">
+                <!-- Message Toasts -->
+                {% if messages %}
+                <div class="mb-6 space-y-3">
+                    {% for message in messages %}
+                    <div
+                        class="flex items-center justify-between p-4 rounded-xl border {% if message.tags == 'error' %}bg-rose-50 border-rose-100 text-rose-800 dark:bg-rose-950/20 dark:border-rose-900/50 dark:text-rose-400{% else %}bg-emerald-50 border-emerald-100 text-emerald-800 dark:bg-emerald-950/20 dark:border-emerald-900/50 dark:text-emerald-400{% endif %} shadow-sm">
+                        <div class="flex items-center gap-3">
+                            {% if message.tags == 'error' %}
+                            <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                            {% else %}
+                            <i class="fa-solid fa-circle-check text-lg"></i>
+                            {% endif %}
+                            <span class="font-medium text-sm">{{ message }}</span>
+                        </div>
+                        <button onclick="this.parentElement.remove()"
+                            class="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Content Block -->
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer Overlay -->
+    <div id="mobile-drawer" class="fixed inset-0 z-50 invisible transition-all duration-300">
+        <!-- Backdrop -->
+        <div id="mobile-drawer-backdrop"
+            class="absolute inset-0 bg-slate-950/40 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
+        <!-- Drawer Body -->
+        <aside id="mobile-drawer-body"
+            class="absolute top-0 bottom-0 left-0 w-80 bg-white border-r border-slate-200 px-6 py-6 flex flex-col -translate-x-full transition-transform duration-300 dark:bg-slate-900 dark:border-slate-800">
+            <!-- Header inside drawer -->
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-2">
+                    <div class="bg-brand-500 text-white p-2 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-utensils"></i>
+                    </div>
+                    <h1 class="font-outfit font-bold text-lg leading-tight dark:text-white">iNextRoy</h1>
+                </div>
+                <button id="mobile-drawer-close-btn"
+                    class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Drawer Links -->
+            <nav class="flex-1 space-y-1.5 overflow-y-auto">
+                <a href="{% url 'reservation_app:dashboard' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {% if request.resolver_match.url_name == 'dashboard' %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">
+                    <i class="fa-solid fa-chart-pie text-lg"></i>
+                    <span>Dashboard</span>
+                </a>
+                <div
+                    class="pt-4 pb-2 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider dark:text-slate-500">
+                    Management</div>
+                <a href="{% url 'reservation_app:customer_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {% if 'customer' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">
+                    <i class="fa-solid fa-users text-lg"></i>
+                    <span>Customers</span>
+                </a>
+                <a href="{% url 'reservation_app:table_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {% if 'table' in request.resolver_match.url_name and 'category' not in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">
+                    <i class="fa-solid fa-chair text-lg"></i>
+                    <span>Tables</span>
+                </a>
+                <a href="{% url 'reservation_app:table_category_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {% if 'table_category' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">
+                    <i class="fa-solid fa-layer-group text-lg"></i>
+                    <span>Categories</span>
+                </a>
+                <a href="{% url 'reservation_app:reservation_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {% if 'reservation' in request.resolver_match.url_name and 'status' not in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">
+                    <i class="fa-solid fa-calendar-days text-lg"></i>
+                    <span>Reservations</span>
+                </a>
+                <a href="{% url 'reservation_app:reservation_status_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {% if 'reservation_status' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">
+                    <i class="fa-solid fa-circle-check text-lg"></i>
+                    <span>Statuses</span>
+                </a>
+                <a href="{% url 'reservation_app:payment_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {% if 'payment' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">
+                    <i class="fa-solid fa-credit-card text-lg"></i>
+                    <span>Payments</span>
+                </a>
+                <a href="{% url 'reservation_app:audit_log_list' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {% if 'audit_log' in request.resolver_match.url_name %}bg-brand-50 text-brand-500 dark:bg-brand-500/10 dark:text-brand-400{% else %}text-slate-500 dark:text-slate-400{% endif %}">
+                    <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+                    <span>Audit Logs</span>
+                </a>
+            </nav>
+            <!-- Bottom controls (Mobile) -->
+            <div
+                class="mt-auto border-t border-slate-100 pt-6 dark:border-slate-800/80 flex items-center justify-between flex-shrink-0">
+                {% if user.is_authenticated %}
+                <div class="flex items-center gap-2.5 overflow-hidden">
+                    <div
+                        class="w-9 h-9 rounded-full bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400 flex items-center justify-center text-xs font-bold shrink-0 uppercase border border-indigo-500/20">
+                        {{ user.username|first }}
+                    </div>
+                    <div class="truncate">
+                        <p class="text-xs font-bold leading-tight truncate text-slate-800 dark:text-slate-200">
+                            {{ user.get_full_name|default:user.username }}
+                        </p>
+                        <span class="text-[10px] text-emerald-500 font-semibold uppercase tracking-widest">
+                            {% if user.is_superuser %}Superuser{% elif user.is_staff %}Staff{% else %}Active{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <a href="{% url 'logout' %}" title="Sign Out"
+                    class="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors p-2 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl">
+                    <i class="fa-solid fa-right-from-bracket text-base"></i>
+                </a>
+                {% else %}
+                <div class="flex items-center gap-2.5 overflow-hidden">
+                    <div
+                        class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center text-xs font-bold shrink-0 uppercase">
+                        G
+                    </div>
+                    <div class="truncate">
+                        <p class="text-xs font-bold leading-tight text-slate-600 dark:text-slate-300">Guest</p>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">Not Signed In</span>
+                    </div>
+                </div>
+                <a href="{% url 'login' %}" title="Sign In"
+                    class="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-2 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded-xl">
+                    <i class="fa-solid fa-right-to-bracket text-base"></i>
+                </a>
+                {% endif %}
+            </div>
+        </aside>
+    </div>
+
+    <!-- Script Section for layout UI interactive states -->
+    <script>
+        // Dark Mode Logic
+        const initTheme = () => {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        };
+        initTheme();
+
+        const toggleTheme = () => {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        };
+
+        document.getElementById('theme-toggle-desktop').addEventListener('click', toggleTheme);
+        document.getElementById('theme-toggle-mobile').addEventListener('click', toggleTheme);
+
+        // Mobile Drawer Toggle
+        const drawer = document.getElementById('mobile-drawer');
+        const drawerBackdrop = document.getElementById('mobile-drawer-backdrop');
+        const drawerBody = document.getElementById('mobile-drawer-body');
+        const openBtn = document.getElementById('mobile-menu-btn');
+        const closeBtn = document.getElementById('mobile-drawer-close-btn');
+
+        const openDrawer = () => {
+            drawer.classList.remove('invisible');
+            setTimeout(() => {
+                drawerBackdrop.classList.replace('opacity-0', 'opacity-100');
+                drawerBody.classList.replace('-translate-x-full', 'translate-x-0');
+            }, 50);
+        };
+
+        const closeDrawer = () => {
+            drawerBackdrop.classList.replace('opacity-100', 'opacity-0');
+            drawerBody.classList.replace('translate-x-0', '-translate-x-full');
+            setTimeout(() => {
+                drawer.classList.add('invisible');
+            }, 300);
+        };
+
+        openBtn.addEventListener('click', openDrawer);
+        closeBtn.addEventListener('click', closeDrawer);
+        drawerBackdrop.addEventListener('click', closeDrawer);
+    </script>
+</body>
+
+</html>

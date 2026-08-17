@@ -1,0 +1,24 @@
+{% extends 'reservation_app/base.html' %}
+
+{% block title %}Delete Status | Table Reservation System{% endblock %}
+{% block header_title %}Confirm Delete{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-2xl border border-slate-200/80 p-6 md:p-8 dark:bg-slate-900 dark:border-slate-800 shadow-sm text-center">
+    <div class="w-16 h-16 rounded-full bg-rose-50 dark:bg-rose-950/20 text-rose-500 flex items-center justify-center text-2xl mx-auto mb-4">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+    </div>
+    <h3 class="font-outfit font-bold text-lg mb-2 dark:text-white">Delete Status?</h3>
+    <p class="text-sm text-slate-500 mb-6">
+        Are you sure you want to delete the <span class="font-bold text-slate-800 dark:text-slate-200">{{ reservationstatus.name }}</span> status?
+        This cannot be undone if reservations currently use this status.
+    </p>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="flex flex-col gap-2">
+            <button type="submit" class="w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-semibold text-sm transition-all shadow-md shadow-rose-500/20">Yes, Delete Permanently</button>
+            <a href="{% url 'reservation_app:reservation_status_list' %}" class="w-full py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/80 dark:text-slate-300">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

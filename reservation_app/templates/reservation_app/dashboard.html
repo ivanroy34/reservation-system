@@ -1,0 +1,253 @@
+{% extends 'reservation_app/base.html' %}
+
+{% block title %}Dashboard | Table Reservation System{% endblock %}
+{% block header_title %}Dashboard Overview{% endblock %}
+
+{% block content %}
+<!-- Grid for Statistics Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+    <!-- Revenue -->
+    <div
+        class="bg-white p-6 rounded-2xl border border-slate-200/80 dark:bg-slate-900 dark:border-slate-800 flex items-center justify-between shadow-sm">
+        <div>
+            <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total
+                Revenue</span>
+            <h3 class="font-outfit font-bold text-2xl mt-1 text-slate-900 dark:text-white">${{ total_revenue|floatformat:2 }}</h3>
+            <span class="text-[11px] text-emerald-500 font-semibold flex items-center gap-1 mt-1">
+                <i class="fa-solid fa-arrow-trend-up"></i> Collected
+            </span>
+        </div>
+        <div class="bg-indigo-50 dark:bg-indigo-950/40 text-brand-500 p-4 rounded-xl flex items-center justify-center">
+            <i class="fa-solid fa-wallet text-xl"></i>
+        </div>
+    </div>
+
+    <!-- Reservations -->
+    <div
+        class="bg-white p-6 rounded-2xl border border-slate-200/80 dark:bg-slate-900 dark:border-slate-800 flex items-center justify-between shadow-sm">
+        <div>
+            <span
+                class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Reservations</span>
+            <h3 class="font-outfit font-bold text-2xl mt-1 text-slate-900 dark:text-white">{{ total_reservations }}</h3>
+            <span class="text-[11px] text-indigo-500 font-semibold flex items-center gap-1 mt-1">
+                Active & Archived
+            </span>
+        </div>
+        <div class="bg-indigo-50 dark:bg-indigo-950/40 text-brand-500 p-4 rounded-xl flex items-center justify-center">
+            <i class="fa-solid fa-calendar-check text-xl"></i>
+        </div>
+    </div>
+
+    <!-- Active Tables -->
+    <div
+        class="bg-white p-6 rounded-2xl border border-slate-200/80 dark:bg-slate-900 dark:border-slate-800 flex items-center justify-between shadow-sm">
+        <div>
+            <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Active
+                Tables</span>
+            <h3 class="font-outfit font-bold text-2xl mt-1 text-slate-900 dark:text-white">{{ total_tables }}</h3>
+            <span class="text-[11px] text-indigo-500 font-semibold flex items-center gap-1 mt-1">
+                Online & Reservable
+            </span>
+        </div>
+        <div class="bg-indigo-50 dark:bg-indigo-950/40 text-brand-500 p-4 rounded-xl flex items-center justify-center">
+            <i class="fa-solid fa-chair text-xl"></i>
+        </div>
+    </div>
+
+    <!-- Customers -->
+    <div
+        class="bg-white p-6 rounded-2xl border border-slate-200/80 dark:bg-slate-900 dark:border-slate-800 flex items-center justify-between shadow-sm">
+        <div>
+            <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total
+                Customers</span>
+            <h3 class="font-outfit font-bold text-2xl mt-1 text-slate-900 dark:text-white">{{ total_customers }}</h3>
+            <span class="text-[11px] text-indigo-500 font-semibold flex items-center gap-1 mt-1">
+                Registered profiles
+            </span>
+        </div>
+        <div class="bg-indigo-50 dark:bg-indigo-950/40 text-brand-500 p-4 rounded-xl flex items-center justify-center">
+            <i class="fa-solid fa-users text-xl"></i>
+        </div>
+    </div>
+
+</div>
+
+<!-- Quick Action Shortcuts -->
+<div class="bg-white p-6 rounded-2xl border border-slate-200/80 dark:bg-slate-900 dark:border-slate-800 mb-8 shadow-sm">
+    <h3 class="font-outfit font-bold text-lg mb-4">Quick Actions</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <a href="{% url 'reservation_app:reservation_create' %}"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl border border-indigo-100 bg-indigo-50/30 hover:bg-indigo-50 text-indigo-600 transition-all font-medium dark:border-indigo-950/50 dark:bg-indigo-950/15 dark:hover:bg-indigo-950/30 dark:text-indigo-400">
+            <i class="fa-solid fa-plus-circle text-lg"></i>
+            <span>New Reservation</span>
+        </a>
+        <a href="{% url 'reservation_app:customer_create' %}"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 transition-all font-medium dark:border-slate-800 dark:hover:bg-slate-800/60 dark:text-slate-300">
+            <i class="fa-solid fa-user-plus text-lg"></i>
+            <span>Add Customer</span>
+        </a>
+        <a href="{% url 'reservation_app:table_create' %}"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 transition-all font-medium dark:border-slate-800 dark:hover:bg-slate-800/60 dark:text-slate-300">
+            <i class="fa-solid fa-circle-plus text-lg"></i>
+            <span>Add Table</span>
+        </a>
+        <a href="{% url 'reservation_app:payment_create' %}"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 transition-all font-medium dark:border-slate-800 dark:hover:bg-slate-800/60 dark:text-slate-300">
+            <i class="fa-solid fa-file-invoice-dollar text-lg"></i>
+            <span>Record Payment</span>
+        </a>
+    </div>
+</div>
+
+<!-- Main Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <!-- Upcoming Reservations (Left Column) -->
+    <div
+        class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 p-6 dark:bg-slate-900 dark:border-slate-800 shadow-sm flex flex-col">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-outfit font-bold text-lg">Upcoming Bookings</h3>
+            <a href="{% url 'reservation_app:reservation_list' %}"
+                class="text-xs font-bold text-brand-500 hover:text-brand-600 dark:text-brand-400 hover:underline">View
+                All</a>
+        </div>
+
+        {% if upcoming_reservations %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-100 dark:border-slate-800">
+                        <th class="pb-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                            Customer</th>
+                        <th class="pb-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                            Table</th>
+                        <th class="pb-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                            Date & Time</th>
+                        <th class="pb-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                            Guests</th>
+                        <th class="pb-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                            Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50">
+                    {% for res in upcoming_reservations %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                        <td class="py-3.5 pr-3 font-semibold text-sm">
+                            <a href="{% url 'reservation_app:reservation_detail' res.id %}"
+                                class="hover:text-brand-500 transition-colors">
+                                {{ res.customer }}
+                            </a>
+                        </td>
+                        <td class="py-3.5 pr-3 text-sm">
+                            <span
+                                class="px-2.5 py-1 text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 rounded-md">
+                                T-{{ res.table.table_number }}
+                            </span>
+                        </td>
+                        <td class="py-3.5 pr-3 text-sm text-slate-500 dark:text-slate-400">
+                            {% with start_time=res.start_time|time:"H:i" end_time=res.end_time|time:"H:i" %}
+                            {{ res.reservation_date|date:"M d, Y" }} <span class="text-xs text-slate-400">({{ start_time }} - {{ end_time }})</span>
+                            {% endwith %}
+                        </td>
+                        <td class="py-3.5 pr-3 text-sm font-medium">{{ res.guests }}</td>
+                        <td class="py-3.5">
+                            <span
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold
+                                {% if res.status.name == 'CONFIRMED' %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400
+                                {% elif res.status.name == 'PENDING' %}bg-amber-100 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400
+                                {% elif res.status.name == 'CANCELLED' %}bg-rose-100 text-rose-800 dark:bg-rose-950/30 dark:text-rose-400
+                                {% else %}bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300{% endif %}">
+                                {{ res.status.name }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="flex flex-col items-center justify-center py-12 flex-1 text-slate-400">
+            <i class="fa-solid fa-calendar-xmark text-4xl mb-3 text-slate-300 dark:text-slate-700"></i>
+            <p class="font-medium">No upcoming reservations found</p>
+            <a href="{% url 'reservation_app:reservation_create' %}"
+                class="text-brand-500 hover:text-brand-600 text-sm font-semibold mt-2 dark:text-brand-400">Create one
+                now</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right Side Cards (Logs & Status Breakdown) -->
+    <div class="space-y-6">
+
+        <!-- Status Distribution -->
+        <div
+            class="bg-white p-6 rounded-2xl border border-slate-200/80 dark:bg-slate-900 dark:border-slate-800 shadow-sm">
+            <h3 class="font-outfit font-bold text-lg mb-4">Bookings Status</h3>
+            <div class="space-y-3.5">
+                {% if status_counts %}
+                {% for name, count in status_counts.items %}
+                <div>
+                    <div class="flex justify-between text-xs font-bold mb-1 uppercase tracking-wider">
+                        <span>{{ name }}</span>
+                        <span class="text-slate-400">{{ count }}</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 dark:bg-slate-800">
+                        <div class="h-2 rounded-full 
+                                {% if name == 'CONFIRMED' %}bg-emerald-500
+                                {% elif name == 'PENDING' %}bg-amber-500
+                                {% elif name == 'CANCELLED' %}bg-rose-500
+                                {% else %}bg-slate-400{% endif %}"
+                            style="width: {% if total_reservations > 0 %}{% widthratio count total_reservations 100 %}{% else %}0{% endif %}%">
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-sm text-slate-400 py-6 text-center">No reservations to analyze status.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Audit Activity -->
+        <div
+            class="bg-white p-6 rounded-2xl border border-slate-200/80 dark:bg-slate-900 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-outfit font-bold text-lg">System Logs</h3>
+                <a href="{% url 'reservation_app:audit_log_list' %}"
+                    class="text-xs font-bold text-brand-500 hover:text-brand-600 dark:text-brand-400 hover:underline">View
+                    History</a>
+            </div>
+
+            {% if recent_logs %}
+            <div class="space-y-4">
+                {% for log in recent_logs %}
+                <div class="flex items-start gap-3">
+                    <div class="p-2 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 mt-0.5
+                        {% if log.action == 'CREATED' %}bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400
+                        {% elif log.action == 'UPDATED' %}bg-blue-50 text-blue-600 dark:bg-blue-950/20 dark:text-blue-400
+                        {% elif log.action == 'CANCELLED' %}bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400
+                        {% else %}bg-slate-50 text-slate-600 dark:bg-slate-850 dark:text-slate-400{% endif %}">
+                        <i class="fa-solid 
+                            {% if log.action == 'CREATED' %}fa-plus
+                            {% elif log.action == 'UPDATED' %}fa-pen
+                            {% elif log.action == 'CANCELLED' %}fa-ban
+                            {% else %}fa-info{% endif %}"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-bold truncate leading-tight dark:text-slate-200">{{ log.details }}</p>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500">{{ log.action_time|timesince }} ago
+                            by {{ log.performed_by }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-sm text-slate-400 py-6 text-center">No system actions logged yet.</p>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

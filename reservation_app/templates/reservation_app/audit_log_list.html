@@ -1,0 +1,73 @@
+{% extends 'reservation_app/base.html' %}
+
+{% block title %}Audit Logs | Table Reservation System{% endblock %}
+{% block header_title %}System Audit Trail{% endblock %}
+
+{% block content %}
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <p class="text-sm text-slate-500">Immutable trail of all creation, update, and cancellation actions performed on reservations.</p>
+</div>
+
+<div class="bg-white rounded-2xl border border-slate-200/80 dark:bg-slate-900 dark:border-slate-800 shadow-sm overflow-hidden">
+    {% if logs %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-100 dark:bg-slate-850 dark:border-slate-800">
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Time</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Reservation</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Action</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Details</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">User</th>
+                    <th class="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-right">View</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                {% for log in logs %}
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition-colors">
+                    <td class="px-6 py-4 text-xs font-mono text-slate-500 dark:text-slate-400">{{ log.action_time|date:"Y-m-d H:i:s" }}</td>
+                    <td class="px-6 py-4 text-sm font-semibold">
+                        <a href="{% url 'reservation_app:reservation_detail' log.reservation.id %}" class="hover:text-brand-500 transition-colors">Booking #{{ log.reservation.id }}</a>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold
+                            {% if log.action == 'CREATED' %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400
+                            {% elif log.action == 'UPDATED' %}bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:text-blue-400
+                            {% elif log.action == 'CANCELLED' %}bg-rose-100 text-rose-800 dark:bg-rose-950/30 dark:text-rose-400
+                            {% else %}bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300{% endif %}">
+                            {{ log.action }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-300 max-w-sm truncate">{{ log.details }}</td>
+                    <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">{{ log.performed_by }}</td>
+                    <td class="px-6 py-4 text-right">
+                        <a href="{% url 'reservation_app:audit_log_detail' log.id %}" class="inline-flex p-2 text-slate-400 hover:text-brand-500 dark:hover:text-brand-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="View Detail">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if is_paginated %}
+    <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-sm text-slate-500">
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        <div class="flex gap-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium transition-colors">Previous</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium transition-colors">Next</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+        <i class="fa-solid fa-clock-rotate-left text-5xl mb-4 text-slate-300 dark:text-slate-700"></i>
+        <p class="font-medium">No audit logs recorded yet</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
